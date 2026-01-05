@@ -1,4 +1,5 @@
-import { getPosts } from "./api.js";
+// Импортируем новую функцию getUserPosts
+import { getPosts, getUserPosts } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
@@ -67,11 +68,31 @@ export const goToPage = (newPage, data) => {
     }
 
     if (newPage === USER_POSTS_PAGE) {
-      // @@TODO: реализовать получение постов юзера из API
-      console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
-      posts = [];
-      return renderApp();
+      // @TODO: реализовать получение постов юзера из API
+      
+      // Включаем спин
+      page = LOADING_PAGE;
+      renderApp();
+
+      // Вызываем API. ID пользователя мы берем из объекта data, 
+      // который передается в goToPage при клике на аватарку
+      return getUserPosts({ 
+        token: getToken(), 
+        userId: data.userId 
+      })
+        .then((newPosts) => {
+          // Обновляем массив постов из API
+          posts = newPosts;
+          // Меняем статус страницы на "Профиль пользователя"
+          page = USER_POSTS_PAGE;
+          // И рисуем приложение с новыми данными
+          renderApp();
+        })
+        // Если ошибка то возвращаемся на главную страницу
+        .catch((error) => {
+          console.error(error);
+          goToPage(POSTS_PAGE);
+        });
     }
 
     page = newPage;
@@ -124,9 +145,11 @@ const renderApp = () => {
   }
 
   if (page === USER_POSTS_PAGE) {
-    // @TODO: реализовать страницу с фотографиями отдельного пользвателя
-    appEl.innerHTML = "Здесь будет страница фотографий пользователя";
-    return;
+    // @TODO: реализовать страницу с фотографиями отдельного пользователя
+    // Меняем заглушку на реальную ленту
+    return renderPostsPageComponent({
+      appEl,
+    });
   }
 };
 
