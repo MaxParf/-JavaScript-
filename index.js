@@ -1,5 +1,5 @@
 // Импортируем новую функцию getUserPosts
-import { getPosts, getUserPosts } from "./api.js";
+import { getPosts, getUserPosts, addPost } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
@@ -132,8 +132,26 @@ const renderApp = () => {
       appEl,
       onAddPostClick({ description, imageUrl }) {
         // @TODO: реализовать добавление поста в API
-        console.log("Добавляю пост...", { description, imageUrl });
-        goToPage(POSTS_PAGE);
+        page = LOADING_PAGE;
+        renderApp();
+
+        // Вызываем API для добавления поста
+        addPost({
+          token: getToken(),
+          description,
+          imageUrl,
+        })
+          .then(() => {
+            // Возвращаемся в ленту
+            goToPage(POSTS_PAGE);
+          })
+          .catch((error) => {
+            // Если ошибка то возвращаем форму и выводим ошибку
+            console.error(error);
+            alert(error.message);
+            page = ADD_POSTS_PAGE;
+            renderApp();
+          });
       },
     });
   }
