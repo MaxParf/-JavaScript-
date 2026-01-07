@@ -2,10 +2,26 @@ import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 // Имортируем массив данных 'posts' и функцию навигации 'goToPage'
 import { posts, goToPage } from "../index.js";
+// Подключаем импорт из библиотеки date-fns для локализации
+import formatDistanceToNow from
+  "https://cdn.jsdelivr.net/npm/date-fns@2.29.3/esm/formatDistanceToNow/index.js";
+
+import ru from
+  "https://cdn.jsdelivr.net/npm/date-fns@2.29.3/esm/locale/ru/index.js";
 
 export function renderPostsPageComponent({ appEl }) {
   // Удоляем статику
   const postsHtml = posts.map((post) => {
+    
+    // Вычисляем сколько времени прошло с момента создания поста до текущего
+    const createDate = post.createdAt
+  ? formatDistanceToNow(new Date(post.createdAt), {
+      addSuffix: true,
+      locale: ru,
+    })
+  : "только что";
+
+
     return `
       <li class="post">
         <div class="post-header" data-user-id="${post.user.id}">
@@ -17,7 +33,7 @@ export function renderPostsPageComponent({ appEl }) {
         </div>
         <div class="post-likes">
           <button data-post-id="${post.id}" class="like-button">
-            <img src="./assets/images/like-not-active.svg">
+            <img src="./assets/images/${post.isLiked ? 'like-active.svg' : 'like-not-active.svg'}">
           </button>
           <p class="post-likes-text">
             Нравится: <strong>${post.likes.length}</strong>
@@ -28,7 +44,8 @@ export function renderPostsPageComponent({ appEl }) {
           ${post.description}
         </p>
         <p class="post-date">
-          ${post.createdAt} </p>
+          ${createDate}
+        </p>
       </li>`;
   }).join(""); // Превращаем массив строк в одну сплошную HTML-строку
 
@@ -37,7 +54,8 @@ export function renderPostsPageComponent({ appEl }) {
               <div class="page-container">
                 <div class="header-container"></div>
                 <ul class="posts">
-                  ${postsHtml} </ul>
+                  ${postsHtml}
+                </ul>
               </div>`;
 
   appEl.innerHTML = appHtml;
