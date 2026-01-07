@@ -91,6 +91,23 @@ export function loginUser({ login, password }) {
   });
 }
 
+// Ставим лайк
+export function likePost({ token, postId }) {
+  return fetch(`${postsHost}/${postId}/like`, {
+    method: "POST", 
+    headers: { Authorization: token }
+  }).then((response) => response.json());
+}
+
+// Удаляем лайк
+export function dislikePost({ token, postId }) {
+  return fetch(`${postsHost}/${postId}/dislike`, { 
+    method: "POST", // Странно но удаление тоже через POST
+    headers: { Authorization: token }
+  }).then((response) => response.json());
+}
+
+
 // Загружает картинку в облако, возвращает url загруженной картинки
 export function uploadImage({ file }) {
   const data = new FormData();
